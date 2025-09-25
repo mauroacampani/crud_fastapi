@@ -44,14 +44,11 @@ async def add_review_to_book(book_uid: str, review_data: ReviewCreateModel, curr
 
 
 @review_router.delete('/{review_uid}', dependencies=[user_role_checker])
-async def delete_review(review_uid: str, session: AsyncSession = Depends(get_session)):
+async def delete_review(review_uid: str, curremt_user: User = Depends(get_current_user), session: AsyncSession = Depends(get_session)):
     
-    review = await review_service.delete_review(review_uid=review_uid, session=session)
+    await review_service.delete_review(review_uid=review_uid, user_email= curremt_user.email, session=session)
 
-    if review is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Review not found")
-    else:
-        return {}
+    return {}
 
 
 
