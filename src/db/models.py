@@ -48,7 +48,7 @@ class Tag(SQLModel, table=True):
             default=uuid.uuid4
         )
     )
-    name: str = Field(sa_column=Column(pg.VARCHAR, nullable=False))
+    name: str = Field(sa_column=Column(pg.VARCHAR, nullable=False, unique=True))
     created_at: datetime = Field(sa_column=Column(pg.TIMESTAMP, default=datetime.now()))
     books: List["BookDB"] = Relationship(link_model=BookTag, back_populates="tags", sa_relationship_kwargs={'lazy': 'selectin'})
 

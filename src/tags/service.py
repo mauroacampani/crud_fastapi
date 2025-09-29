@@ -4,7 +4,7 @@ from sqlmodel import select, desc
 from fastapi import status, HTTPException
 from .schemas import TagCreateModel, TagAddModel
 from src.books.service import BookService
-
+from src.errors import BookNotFound, TagNotFound, TagAlreadyExists
 
 
 book_service = BookService()
@@ -34,11 +34,17 @@ class TagService:
 
     async def create_tag(self, tag_data: TagCreateModel, session: AsyncSession):
 
-        tag_data_dict = tag_data.model_dump()
+        statement = select(Tag).where(Tag.name == tag_data.name)
 
-        new_tag = Tag(
-            **tag_data_dict
-        )
+        result = await session.exec(statement)
+
+        tag = result.first()
+
+        if tag:
+            raise TagAlreadyExists()
+        
+
+        new_tag = Tag(name=tag_data.name)
        
         session.add(new_tag)
 
@@ -64,10 +70,7 @@ class TagService:
 
             return tag
         else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Tag no encontado"
-            )
+            raise TagNotFound()
         
 
     async def delete_tag(self, tag_uid: str, session: AsyncSession):
@@ -82,10 +85,7 @@ class TagService:
 
             return {}
         else:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Tag no encontado"
-            )
+            raise TagNotFound()
         
 
     async def add_tags_to_book(self, book_uid: str, tag_data: TagAddModel, session: AsyncSession):
@@ -93,10 +93,7 @@ class TagService:
         book = await book_service.get_book(book_uid=book_uid, session=session)
 
         if not book:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail="Tag no encontado"
-            )
+            raise BookNotFound()
 
         for tag_item in tag_data.tags:
             result = await session.exec(select(Tag).where(Tag.name == tag_item.name))

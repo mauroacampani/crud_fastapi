@@ -1,10 +1,12 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, status
+from fastapi.responses import JSONResponse
 from src.books.routes import book_router
 from contextlib import asynccontextmanager
 from src.db.main import init_db
 from src.auth.routes import auth_router
 from src.reviews.routes import review_router
 from src.tags.routes import tags_router
+from .errors import register_all_errors
 
 @asynccontextmanager #convierte la función en un contexto async, ideal para manejar recursos de arranque y cierre
 async def life_span(app: FastAPI):
@@ -21,6 +23,10 @@ app = FastAPI(
     version= version,
     # lifespan=life_span
 )
+
+
+register_all_errors(app)
+
 
 app.include_router(book_router, prefix=f"/api/{version}/books", tags=['books'])
 app.include_router(auth_router, prefix=f"/api/{version}/auth", tags=['auth'])
