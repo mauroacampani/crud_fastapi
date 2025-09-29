@@ -14,5 +14,5 @@ class TagCreateModel(BaseModel):
     name: str
 
 
-class TagAddModel(TagModel):
+class TagAddModel(BaseModel):
     tags: List[TagCreateModel]

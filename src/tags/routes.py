@@ -1,10 +1,11 @@
 from fastapi import HTTPException, status, APIRouter, Depends
-from .schemas import TagModel, TagCreateModel
+from .schemas import TagModel, TagCreateModel, TagAddModel
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.main import get_session
 from src.auth.dependencies import AccessTokenBearer, RoleChecker
 from .service import TagService
 from typing import List
+from src.books.schemas import Book
 
 
 tags_router = APIRouter()
@@ -61,3 +62,12 @@ async def update_tag(tag_uid: str, session: AsyncSession = Depends(get_session))
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Tag not found")
     else:
         return {}
+    
+
+
+@tags_router.post('/book/{book_uid}/tags', status_code=status.HTTP_201_CREATED, response_model=Book, dependencies=[user_role_checker])
+async def add_tags_to_book(book_uid: str, tag_data: TagAddModel, session: AsyncSession = Depends(get_session)) -> TagModel:
+
+    book_tags = await tag_service.add_tags_to_book(book_uid, tag_data, session)
+
+    return book_tags

@@ -1,8 +1,14 @@
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.db.models import Tag
+from src.db.models import Tag, BookDB
 from sqlmodel import select, desc
 from fastapi import status, HTTPException
-from .schemas import TagCreateModel
+from .schemas import TagCreateModel, TagAddModel
+from src.books.service import BookService
+
+
+
+book_service = BookService()
+
 
 
 class TagService:
@@ -33,7 +39,7 @@ class TagService:
         new_tag = Tag(
             **tag_data_dict
         )
-        print(tag_data_dict)
+       
         session.add(new_tag)
 
         await session.commit()
@@ -80,3 +86,29 @@ class TagService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail="Tag no encontado"
             )
+        
+
+    async def add_tags_to_book(self, book_uid: str, tag_data: TagAddModel, session: AsyncSession):
+
+        book = await book_service.get_book(book_uid=book_uid, session=session)
+
+        if not book:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail="Tag no encontado"
+            )
+
+        for tag_item in tag_data.tags:
+            result = await session.exec(select(Tag).where(Tag.name == tag_item.name))
+
+            tag = result.one_or_none()
+            
+            if not tag:
+                tag = Tag(name=tag_item.name)
+
+        
+            book.tags.append(tag)
+        session.add(book)
+        await session.commit()
+        await session.refresh(book)
+        return book
