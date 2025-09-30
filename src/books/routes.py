@@ -41,7 +41,7 @@ async def create_a_books(book_data: BookCreateModel, session: AsyncSession = Dep
 async def get_books(book_uid: str, session: AsyncSession = Depends(get_session)) -> dict:
     
     book = await book_service.get_book(book_uid, session)
-    print(n/0)
+  
     if book:
         return book
     else:
