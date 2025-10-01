@@ -65,6 +65,11 @@ class UserNotFound(BooklyException):
     pass
 
 
+class AccountNotVerified(Exception):
+    """Account not verified"""
+    pass
+
+
 def create_exception_handler(status_code: int, initial_detail: Any) -> Callable[[Request, Exception], JSONResponse]:
     
     async def exeption_handler(request: Request, exc: BooklyException):
@@ -199,6 +204,7 @@ def register_all_errors(app: FastAPI):
     )
 
 
+
     app.add_exception_handler(
         TagAlreadyExists,
         create_exception_handler(
@@ -210,6 +216,18 @@ def register_all_errors(app: FastAPI):
         )
     )
 
+
+    app.add_exception_handler(
+        AccountNotVerified,
+        create_exception_handler(
+            status_code=status.HTTP_402_PAYMENT_REQUIRED,
+            initial_detail={
+                "message": "Account not verified",
+                "error_code": "account_not_verified",
+                "resolution": "Please check email for verification details"
+            }
+        )
+    )
 
     @app.exception_handler(500)
     async def internal_server_error(request, exc):
