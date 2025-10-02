@@ -26,7 +26,7 @@ app = FastAPI(
     # lifespan=life_span
     docs_url=f"/api/{version}/docs",
     redoc_url=f"/api/{version}/redoc",
-    openapi_url=f"{version}/openapi.json",
+    openapi_url=f"/api/{version}/openapi.json",
     license_info={
         "name": "MIT License",
         "url": "https://opensource.org/license/mit",

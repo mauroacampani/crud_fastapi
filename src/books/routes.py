@@ -8,6 +8,7 @@ from src.books.service import BookService
 from src.auth.dependencies import AccessTokenBearer, RoleChecker
 from src.errors import BookNotFound
 
+
 book_router = APIRouter()
 
 book_service = BookService()
@@ -21,6 +22,7 @@ async def get_all_books(session: AsyncSession = Depends(get_session)):
 
     books = await book_service.get_all_books(session)
     return books
+
 
 @book_router.get('/user/{user_uid}', response_model=List[Book], dependencies=[role_checker])
 async def get_user_book_submissions(user_uid: str, session: AsyncSession = Depends(get_session)):
