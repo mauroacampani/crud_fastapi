@@ -55,20 +55,19 @@ async def create_user_account(user_data: UserCreateModel, bg_taks: BackgroundTas
         <h1>Verify your Email</h1>
         <p>Please click this <a href="{link}">link</a> to verify your email</p>
 """
-    """
-    Envio de email utilizando BackgrounTask para ejecutarlo en segundo plano
+ 
     
-    # message = create_message(recipients=[email], subject="Verify email", body=html_message)
+    message = create_message(recipients=[email], subject="Verify email", body=html_message)
 
-    # bg_taks.add_task(mail.send_message, message) 
+    bg_taks.add_task(mail.send_message, message) 
 
-    """
+   
 
-    emails = [email]
+    # emails = [email]
 
-    subject = "Verify Your Email"
+    # subject = "Verify Your Email"
 
-    send_email.delay(emails, subject, html_message)
+    # send_email.delay(emails, subject, html_message)
 
     return {
         "message": "Account Created! Check email to verify you account",
